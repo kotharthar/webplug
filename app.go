@@ -58,7 +58,7 @@ func FileOpenHandler(w rest.ResponseWriter, r *rest.Request) {
 	target := r.Form.Get("target")
 
 	if target == "" {
-		rest.Error(w, "File not found.", http.StatusNotFound)
+		rest.Error(w, "Missing target file.", http.StatusBadRequest)
 		return
 	}
 
