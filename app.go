@@ -16,6 +16,10 @@ type Editable struct {
 	Content  string `json:"content"`
 }
 
+func (e *Editable) FullPath() string {
+	return filepath.Join(projectDir, e.FilePath)
+}
+
 /* Project directory for editing */
 var projectDir string = "/Users/ktt/w/webplug/project/"
 
@@ -87,21 +91,22 @@ func FileSaveHandler(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
+	// Create nested path incase missing
+	err = os.MkdirAll(filepath.Dir(editable.FullPath()), 0777)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Write file and check error
-	err = ioutil.WriteFile(projectDir+editable.FilePath, []byte(editable.Content), 0644)
+	log.Println(editable.FullPath())
+	err = ioutil.WriteFile(editable.FullPath(), []byte(editable.Content), 0644)
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-}
-
-/* API: This simply create the needed directories & file */
-func FileNewHandler(w rest.ResponseWriter, r *rest.Request) {
-	w.WriteJson(map[string]string{
-		"Body": "FileNewHandler",
-	})
 }
 
 func main() {
@@ -114,7 +119,6 @@ func main() {
 		rest.Get("/files", FileTreeHandler),
 		rest.Get("/files/open", FileOpenHandler),
 		rest.Post("/files/save", FileSaveHandler),
-		rest.Post("/files/new", FileNewHandler),
 	)
 	api.SetApp(apiRouter)
 
