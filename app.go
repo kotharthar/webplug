@@ -11,7 +11,7 @@ import (
 )
 
 /* Project directory for editing */
-var projectDir string = "./project"
+var projectDir string = "/Users/ktt/w/webplug/project/"
 
 /* List of Project files */
 var projectFiles []string
@@ -19,6 +19,7 @@ var projectFiles []string
 /* Directory walking recursive function */
 func collectProjectFiles(fp string, fi os.FileInfo, err error) error {
 	if err != nil {
+		log.Println(err.Error())
 		return nil // Can't walk here, move on
 	}
 	if !!fi.IsDir() {
@@ -31,7 +32,8 @@ func collectProjectFiles(fp string, fi os.FileInfo, err error) error {
 		return err //malform pattern, failed.
 	}
 	if matched && !hmatched {
-		projectFiles = append(projectFiles, fp) //collect
+		relPath, _ := filepath.Rel(projectDir, fp)   // extract relative path
+		projectFiles = append(projectFiles, relPath) //collect
 	}
 	return nil
 }
@@ -60,7 +62,7 @@ func FileOpenHandler(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	content, err := ioutil.ReadFile(target)
+	content, err := ioutil.ReadFile(projectDir + target)
 	if err != nil {
 		rest.Error(w, err.Error(), http.StatusInternalServerError)
 		return
