@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/ant0ine/go-json-rest/rest"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -36,6 +38,7 @@ func collectProjectFiles(fp string, fi os.FileInfo, err error) error {
 
 /* API: This returns the list of all files in project directory including files in
 sub directory
+> curl -i http://127.0.0.1:3000/api/files
 */
 func FileTreeHandler(w rest.ResponseWriter, r *rest.Request) {
 	projectFiles = make([]string, 0)
@@ -45,10 +48,26 @@ func FileTreeHandler(w rest.ResponseWriter, r *rest.Request) {
 	})
 }
 
-/* API: This returns the file content of given file in project directory */
+/* API: This returns the file content of given file in project directory
+> curl -i http://127.0.0.1:3000/api/files/open?t=
+*/
 func FileOpenHandler(w rest.ResponseWriter, r *rest.Request) {
+	r.ParseForm()
+	target := r.Form.Get("target")
+
+	if target == "" {
+		rest.Error(w, "File not found.", http.StatusNotFound)
+		return
+	}
+
+	content, err := ioutil.ReadFile(target)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteJson(map[string]string{
-		"Body": "FileOpenHandler",
+		"content": fmt.Sprintf("%s", content),
 	})
 }
 
