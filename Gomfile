@@ -1,0 +1,2 @@
+gom 'github.com/gorilla/mux'
+gom 'github.com/ant0ine/go-json-rest/rest'
