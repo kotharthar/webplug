@@ -4,14 +4,44 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 )
+
+/* Project directory for editing */
+var projectDir string = "./project"
+
+/* List of Project files */
+var projectFiles []string
+
+/* Directory walking recursive function */
+func collectProjectFiles(fp string, fi os.FileInfo, err error) error {
+	if err != nil {
+		return nil // Can't walk here, move on
+	}
+	if !!fi.IsDir() {
+		return nil //not a file. Ignore.
+	}
+
+	matched, err := filepath.Match("*.*", fi.Name())
+	hmatched, _ := filepath.Match(".*", fi.Name())
+	if err != nil {
+		return err //malform pattern, failed.
+	}
+	if matched && !hmatched {
+		projectFiles = append(projectFiles, fp) //collect
+	}
+	return nil
+}
 
 /* API: This returns the list of all files in project directory including files in
 sub directory
 */
 func FileTreeHandler(w rest.ResponseWriter, r *rest.Request) {
-	w.WriteJson(map[string]string{
-		"Body": "FileTreeHandler",
+	projectFiles = make([]string, 0)
+	filepath.Walk(projectDir, collectProjectFiles) // populate projectFiles
+	w.WriteJson(map[string][]string{
+		"files": projectFiles,
 	})
 }
 
