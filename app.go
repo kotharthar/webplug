@@ -10,6 +10,12 @@ import (
 	"path/filepath"
 )
 
+/* Editable structure */
+type Editable struct {
+	FilePath string `json:"filepath"`
+	Content  string `json:"content"`
+}
+
 /* Project directory for editing */
 var projectDir string = "/Users/ktt/w/webplug/project/"
 
@@ -68,9 +74,7 @@ func FileOpenHandler(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	w.WriteJson(map[string]string{
-		"content": fmt.Sprintf("%s", content),
-	})
+	w.WriteJson(&Editable{target, fmt.Sprintf("%s", content)})
 }
 
 /* API: This write given content to given file in project directory */
