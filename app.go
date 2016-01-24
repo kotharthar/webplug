@@ -79,9 +79,22 @@ func FileOpenHandler(w rest.ResponseWriter, r *rest.Request) {
 
 /* API: This write given content to given file in project directory */
 func FileSaveHandler(w rest.ResponseWriter, r *rest.Request) {
-	w.WriteJson(map[string]string{
-		"Body": "FileSaveHandler",
-	})
+	// Get Payload
+	editable := Editable{}
+	err := r.DecodeJsonPayload(&editable)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Write file and check error
+	err = ioutil.WriteFile(projectDir+editable.FilePath, []byte(editable.Content), 0644)
+	if err != nil {
+		rest.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 /* API: This simply create the needed directories & file */
