@@ -10,7 +10,6 @@
     "angular-route": "^1.4.0",
     "angular-sanitize": "^1.4.0",
     "angular-touch": "^1.4.0",
-    "ez-file-tree": "~0.5.1",
     "angular-ui-ace": "~0.2.3"
   },
   "devDependencies": {
