@@ -2,9 +2,9 @@
 
 /**
  * @ngdoc overview
- * @name siteAppApp
+ * @name webplugApp
  * @description
- * # siteAppApp
+ * # webplugApp 
  *
  * Main module of the application.
  */
@@ -15,7 +15,7 @@ angular
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch',
+    'ngTouch'
     'ui.ace'
   ])
   .config(function ($routeProvider) {

@@ -16,4 +16,4 @@ angular.module('webplugApp')
       $scope.aceChanged = function(e){
           console.log("Aced changed.");
       }
-  }]);
+}]);
