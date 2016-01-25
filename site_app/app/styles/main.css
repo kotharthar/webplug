@@ -81,3 +81,6 @@ body {
     border-bottom: 0;
   }
 }
+.ace_editor { 
+    height: 200px; 
+}

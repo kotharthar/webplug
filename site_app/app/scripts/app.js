@@ -9,13 +9,14 @@
  * Main module of the application.
  */
 angular
-  .module('siteAppApp', [
+  .module('webplugApp', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'ui.ace'
   ])
   .config(function ($routeProvider) {
     $routeProvider

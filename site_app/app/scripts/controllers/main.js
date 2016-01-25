@@ -7,11 +7,13 @@
  * # MainCtrl
  * Controller of the siteAppApp
  */
-angular.module('siteAppApp')
-  .controller('MainCtrl', function () {
-    this.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+angular.module('webplugApp')
+  .controller('MainCtrl', ['$scope',function ($scope) {
+      $scope.aceLoaded = function(_editor){
+          console.log(_editor);
+          console.log("Aced loaded.");
+      }
+      $scope.aceChanged = function(e){
+          console.log("Aced changed.");
+      }
+  }]);
