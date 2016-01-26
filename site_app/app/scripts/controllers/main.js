@@ -9,6 +9,7 @@
  */
 angular.module('webplugApp')
 .controller('MainCtrl', ['$scope','$http',function ($scope,$http) {
+    $scope.editorContent = "";
     $scope.projectTree = [];
     $scope.aceLoaded = function(_editor){
         console.log(_editor);
@@ -25,7 +26,20 @@ angular.module('webplugApp')
     }
 
     $scope.aceChanged = function(e){
-        console.log("Aced changed.");
+        //console.log("Aced changed.");
+    }
+
+    $scope.saveChanges = function(){
+        $http({
+            "method": "POST",
+            url: 'http://localhost:3000/api/files/save',
+            data: {"filepath": $scope.selectedNode.filepath, "content": $scope.editorContent, "children":[]}
+        }).then(function success(response){
+            console.log(response);
+        },function error(response){
+            console.log(response);
+        });
+               
     }
 
     $scope.treeOptions = {
@@ -58,6 +72,15 @@ angular.module('webplugApp')
     // ];
     $scope.showSelected = function(sel) {
          $scope.selectedNode = sel;
-         console.log($scope.selectedNode);
+         $http({
+            "method": "GET",
+            "url": 'http://localhost:3000/api/files/open',
+            "params": {"target": sel.filepath}
+         }).then(function success(response){
+             console.log(response.data);
+             $scope.editorContent = response.data.content;
+         },function error(response){
+             console.log(response);
+        });
      };
 }]);
