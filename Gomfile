@@ -1,3 +1,5 @@
 gom 'github.com/gorilla/mux'
 gom 'github.com/gorilla/handlers'
 gom 'github.com/ant0ine/go-json-rest/rest'
+gom 'github.com/jteeuwen/go-bindata'
+gom 'github.com/elazarl/go-bindata-assetfs'
