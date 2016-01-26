@@ -1,10 +1,10 @@
 <div style="background-color: #141414;">
     <div treecontrol class="tree-dark"
-       tree-model="dataForTheTree"
+       tree-model="projectTree"
        options="treeOptions"
        on-selection="showSelected(node)"
        selected-node="node1">
-       employee: {{node.name}} age {{node.age}}
+       {{node.filepath}}
     </div>
 </div>
 

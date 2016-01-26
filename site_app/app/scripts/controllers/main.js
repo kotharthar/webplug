@@ -8,18 +8,29 @@
  * Controller of the siteAppApp
  */
 angular.module('webplugApp')
-.controller('MainCtrl', ['$scope',function ($scope) {
+.controller('MainCtrl', ['$scope','$http',function ($scope,$http) {
+    $scope.projectTree = [];
     $scope.aceLoaded = function(_editor){
         console.log(_editor);
         console.log("Aced loaded.");
+        $http({
+            method: 'GET',
+            url: 'http://localhost:3000/api/files'
+        }).then(function success(response){
+            console.log(response.data);
+            $scope.projectTree = response.data;
+        },function error(response){
+            console.log(response);
+        });
     }
+
     $scope.aceChanged = function(e){
         console.log("Aced changed.");
     }
 
     $scope.treeOptions = {
         nodeChildren: "children",
-        dirSelectable: true,
+        dirSelectable: false,
         injectClasses: {
             ul: "a1",
             li: "a2",
