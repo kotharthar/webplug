@@ -16,7 +16,8 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'ui.ace'
+    'ui.ace',
+    'treeControl'
   ])
   .config(function ($routeProvider) {
     $routeProvider
