@@ -25,6 +25,31 @@ angular.module('webplugApp')
         });
     }
 
+    $scope.saveNewFile = function(){
+        console.log($scope.newFilePath);
+        $http({
+            "method": "POST",
+            url: 'http://localhost:3000/api/files/save',
+            data: {"filepath": $scope.newFilePath, "content": "", "children":[]}
+        }).then(function success(response){
+            console.log(response);
+            //Reload tree
+            $http({
+                method: 'GET',
+                url: 'http://localhost:3000/api/files'
+            }).then(function success(response){
+                console.log(response.data);
+                $scope.projectTree = response.data;
+            },function error(response){
+                console.log(response);
+            });
+
+        },function error(response){
+            console.log(response);
+        });
+
+    }
+
     $scope.aceChanged = function(e){
         //console.log("Aced changed.");
     }
