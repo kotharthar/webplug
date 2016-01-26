@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./assets"
 	"fmt"
 	"github.com/ant0ine/go-json-rest/rest"
 	"io/ioutil"
@@ -110,6 +111,7 @@ func FileSaveHandler(w rest.ResponseWriter, r *rest.Request) {
 }
 
 func main() {
+	log.Println(util.Bok())
 
 	/* API Router setup */
 	api := rest.NewApi()
@@ -137,7 +139,7 @@ func main() {
 	http.Handle("/api/", http.StripPrefix("/api", api.MakeHandler()))
 
 	/* AngularJS App Distribution Directory */
-	http.Handle("/", http.FileServer(http.Dir("./site_app/dist")))
+	http.Handle("/", http.FileServer(http.Dir("./site_app_dist")))
 
 	/* Now start the server */
 	log.Fatal(http.ListenAndServe(":3000", nil))
