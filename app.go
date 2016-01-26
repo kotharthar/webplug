@@ -12,8 +12,9 @@ import (
 
 /* Editable structure */
 type Editable struct {
-	FilePath string `json:"filepath"`
-	Content  string `json:"content"`
+	FilePath string   `json:"filepath"`
+	Content  string   `json:"content"`
+	Children []string `json:"children"`
 }
 
 func (e *Editable) FullPath() string {
@@ -24,7 +25,7 @@ func (e *Editable) FullPath() string {
 var projectDir string = "/Users/ktt/w/webplug/project/"
 
 /* List of Project files */
-var projectFiles []string
+var projectFiles []Editable
 
 /* Directory walking recursive function */
 func collectProjectFiles(fp string, fi os.FileInfo, err error) error {
@@ -42,8 +43,9 @@ func collectProjectFiles(fp string, fi os.FileInfo, err error) error {
 		return err //malform pattern, failed.
 	}
 	if matched && !hmatched {
-		relPath, _ := filepath.Rel(projectDir, fp)   // extract relative path
-		projectFiles = append(projectFiles, relPath) //collect
+		relPath, _ := filepath.Rel(projectDir, fp) // extract relative path
+		theEditable := Editable{relPath, "", []string{}}
+		projectFiles = append(projectFiles, theEditable) //collect
 	}
 	return nil
 }
@@ -53,11 +55,9 @@ sub directory
 > curl -i http://127.0.0.1:3000/api/files
 */
 func FileTreeHandler(w rest.ResponseWriter, r *rest.Request) {
-	projectFiles = make([]string, 0)
+	projectFiles = make([]Editable, 0)
 	filepath.Walk(projectDir, collectProjectFiles) // populate projectFiles
-	w.WriteJson(map[string][]string{
-		"files": projectFiles,
-	})
+	w.WriteJson(projectFiles)
 }
 
 /* API: This returns the file content of given file in project directory
@@ -78,7 +78,7 @@ func FileOpenHandler(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	w.WriteJson(&Editable{target, fmt.Sprintf("%s", content)})
+	w.WriteJson(&Editable{target, fmt.Sprintf("%s", content), []string{}})
 }
 
 /* API: This write given content to given file in project directory */
@@ -115,6 +115,17 @@ func main() {
 	api := rest.NewApi()
 	api.Use(&rest.AccessLogApacheMiddleware{})
 	api.Use(rest.DefaultCommonStack...)
+	api.Use(&rest.CorsMiddleware{ //TODO: To make origin configurable
+		RejectNonCorsRequests: false,
+		OriginValidator: func(origin string, request *rest.Request) bool {
+			return origin == "http://localhost:9000"
+		},
+		AllowedMethods: []string{"GET", "POST", "DELETE"},
+		AllowedHeaders: []string{
+			"Accept", "Content-Type", "X-Custom-Header", "Origin"},
+		AccessControlAllowCredentials: true,
+		AccessControlMaxAge:           3600,
+	})
 	apiRouter, _ := rest.MakeRouter(
 		rest.Get("/files", FileTreeHandler),
 		rest.Get("/files/open", FileOpenHandler),
