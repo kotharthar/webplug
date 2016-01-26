@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./dashboard"
+	//"./dashboard" //REF1 //NOTE: This is to include bindata_assetfs.go for embedded ng-app.
 	"fmt"
 	"github.com/ant0ine/go-json-rest/rest"
 	"io/ioutil"
@@ -137,8 +137,11 @@ func main() {
 	/* API endpoints */
 	http.Handle("/api/", http.StripPrefix("/api", api.MakeHandler()))
 
-	/* AngularJS App Distribution Directory */
-	http.Handle("/", http.FileServer(dashboard.EassetFS()))
+	/* AngularJS App Distribution Directory
+	// NOTE: This requires import of ./dashboard and required dashboard/bindata_assetfs.go file.
+	// 		 this is to embed front-end ng-app.
+	*/
+	//http.Handle("/", http.FileServer(dashboard.EassetFS())) // REF2, enable along with REF1
 
 	/* Now start the server */
 	log.Fatal(http.ListenAndServe(":3000", nil))
