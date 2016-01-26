@@ -2,52 +2,78 @@
 
 /**
  * @ngdoc function
- * @name siteAppApp.controller:MainCtrl
+ * @name webplugApp.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the siteAppApp
+ * Controller of the webplugApp
  */
 angular.module('webplugApp')
-.controller('MainCtrl', ['$scope','$http',function ($scope,$http) {
-    $scope.editorContent = "";
-    $scope.projectTree = [];
-    $scope.aceLoaded = function(_editor){
-        console.log(_editor);
-        console.log("Aced loaded.");
-        $http({
-            method: 'GET',
-            url: 'http://localhost:3000/api/files'
-        }).then(function success(response){
-            console.log(response.data);
+.controller('MainCtrl', ['$scope','$http','api',function ($scope,$http,api) {
+
+    function isHostSet(){
+        if(api.hostURL() == ""){
+            if ($scope.hostURL == ""){
+            alert("API host URL is not defined.");
+            return false;
+            }else{
+                api.setHost($scope.hostURL);
+                loadFileList();
+            }
+        }
+        return true;
+    }
+
+    function openSelectedFile(){
+        if(!isHostSet()){return;} // API existence check
+
+        api.openFile($scope.selectedNode.filepath).then(function success(response){
+             console.log(response.data);
+             $scope.editorContent = response.data.content;
+         },function error(response){
+             console.log(response);
+        });
+    }
+
+    function loadFileList(){
+        if(!isHostSet()){return;} // API existence check
+
+        api.getFiles().then(function success(response){
             $scope.projectTree = response.data;
+        },function error(response){
+            console.log(response);
+        });
+
+    }
+
+    function saveFile(targetFile,content,isnew){
+        if(!isHostSet()){return;} // API existence check
+
+        api.saveFile(targetFile,content).then(function success(response){
+            console.log(response);
+            if (isnew == true)
+                loadFileList();
         },function error(response){
             console.log(response);
         });
     }
 
+    $scope.hostURL = $('#hostURL').val();
+    $scope.editorContent = "";
+    $scope.projectTree = [];
+    $scope.aceLoaded = function(_editor){
+        console.log(_editor);
+    console.log("Aced loaded.");
+        loadFileList();
+    }
+
+    $scope.setHostURL = function(){
+        api.setHost($scope.hostURL);
+        loadFileList();
+    }
+
     $scope.saveNewFile = function(){
         console.log($scope.newFilePath);
-        $http({
-            "method": "POST",
-            url: 'http://localhost:3000/api/files/save',
-            data: {"filepath": $scope.newFilePath, "content": "", "children":[]}
-        }).then(function success(response){
-            console.log(response);
-            //Reload tree
-            $http({
-                method: 'GET',
-                url: 'http://localhost:3000/api/files'
-            }).then(function success(response){
-                console.log(response.data);
-                $scope.projectTree = response.data;
-            },function error(response){
-                console.log(response);
-            });
-
-        },function error(response){
-            console.log(response);
-        });
-
+        saveFile($scope.newFilePath,"",true);
     }
 
     $scope.aceChanged = function(e){
@@ -55,16 +81,7 @@ angular.module('webplugApp')
     }
 
     $scope.saveChanges = function(){
-        $http({
-            "method": "POST",
-            url: 'http://localhost:3000/api/files/save',
-            data: {"filepath": $scope.selectedNode.filepath, "content": $scope.editorContent, "children":[]}
-        }).then(function success(response){
-            console.log(response);
-        },function error(response){
-            console.log(response);
-        });
-               
+        saveFile($scope.selectedNode.filepath,$scope.editorContent,false);
     }
 
     $scope.treeOptions = {
@@ -97,15 +114,6 @@ angular.module('webplugApp')
     // ];
     $scope.showSelected = function(sel) {
          $scope.selectedNode = sel;
-         $http({
-            "method": "GET",
-            "url": 'http://localhost:3000/api/files/open',
-            "params": {"target": sel.filepath}
-         }).then(function success(response){
-             console.log(response.data);
-             $scope.editorContent = response.data.content;
-         },function error(response){
-             console.log(response);
-        });
+         openSelectedFile();         
      };
 }]);
